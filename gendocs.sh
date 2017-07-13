@@ -12,7 +12,7 @@ generate_docs() {
 
         mkdir -vp "${docsDir}"
 
-        echo "wait for doc files"
+        echo "wait for doc files..."
         inotifywait -t ${timeout} -e create -e moved_to "${docsDir}"
 
         # sleep another five seconds to ensure that the files were created completely
@@ -22,15 +22,15 @@ generate_docs() {
         echo "Docker logs:"
         docker-compose logs
 
+        # clean up environment
+        echo "Clean up environment..."
+        docker-compose rm -fsv
+
         if [ ! -f "${scriptDir}/modules" ]
         then
             echo "The docs couldn't be created."
             exit 1
         fi
-
-        # clean up environment
-        echo "Clean up environment..."
-        docker-compose rm -fsv
     popd
 }
 
