@@ -26,7 +26,7 @@ generate_docs() {
         echo "Clean up environment..."
         docker-compose rm -fsv
 
-        if [ ! -f "${scriptDir}/modules" ]
+        if [ ! -f "${docsDir}/modules" ]
         then
             echo "The docs couldn't be created."
             exit 1
