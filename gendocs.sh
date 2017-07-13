@@ -1,6 +1,6 @@
 #!/bin/bash
 
-timeout=7200
+timeout=120
 scriptDir="$(dirname "$(realpath "$0")")"
 docsDir="${scriptDir}/data/config/cubeengine/modules/docs"
 
@@ -13,7 +13,7 @@ generate_docs() {
         mkdir -vp "${docsDir}"
 
         echo "wait for doc files"
-        inotifywait -qqt ${timeout} -e create -e moved_to "${docsDir}"
+        inotifywait -t ${timeout} -e create -e moved_to "${docsDir}"
 
         # sleep another five seconds to ensure that the files were created completely
         sleep 5
