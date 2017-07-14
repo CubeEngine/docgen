@@ -1,38 +1,95 @@
 #!/bin/bash
 
-timeout=120
 scriptDir="$(dirname "$(realpath "$0")")"
-docsDir="${scriptDir}/data/config/cubeengine/modules/docs"
+configDir="${scriptDir}/data/config"
+genDocsDir="${configDir}/cubeengine/modules/docs"
+
+docsDir="${scriptDir}/../docs"
+
+# docker settings
+NETWORK_NAME="forge_network"
+
+MYSQL_CONTAINER_NAME="docgen_mysql"
+MYSQL_ROOT_PASSWORD="<db-root-pw>"
+MYSQL_DATABASE="minecraft"
+MYSQL_USER="minecraft"
+MYSQL_PASSWORD="<db-user-pw>"
+
+MONGODB_CONTAINER_NAME="docgen_mongodb"
+MONGODB_DBNAME="cubeengine"
+MONGODB_USERNAME="minecraft"
+MONGODB_PASSWORD="<mongo-db-user-pw>"
+
+FORGE_CONTAINER_NAME="docgen_forge"
+FORGE_JAVA_VM_ARGS="-Xmx1G"
+FORGE_MODS_DIR="${scriptDir}/data/mods"
 
 generate_docs() {
     pushd "${scriptDir}"
-        # start the container
-        echo "starts the containers..."
-        docker-compose up -d
+        echo "Creates a docker network..."
+        docker network create -d bridge "${NETWORK_NAME}"
 
-        mkdir -vp "${docsDir}"
+        echo "Creates and starts the MySQL container..."
+        docker run --name "${MYSQL_CONTAINER_NAME}" -d --rm \
+            --network="${NETWORK_NAME}" \
+            --env MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD}" \
+            --env MYSQL_DATABASE="${MYSQL_DATABASE}" \
+            --env MYSQL_USER="${MYSQL_USER}" \
+            --env MYSQL_PASSWORD="${MYSQL_PASSWORD}" \
+            mysql:5.7
 
-        echo "wait for doc files..."
-        inotifywait -t ${timeout} -e create -e moved_to "${docsDir}"
+        echo "Creates and starts the MongoDB container..."
+        docker run --name "${MONGODB_CONTAINER_NAME}" -d --rm \
+            --network="${NETWORK_NAME}" \
+            --env MONGODB_DBNAME="${MONGODB_DBNAME}" \
+            --env MONGODB_USERNAME="${MONGODB_USERNAME}" \
+            --env MONGODB_PASSWORD="${MONGODB_PASSWORD}" \
+            frodenas/mongodb:3.0
 
-        # sleep another five seconds to ensure that the files were created completely
-        sleep 5
+        echo "Creates and starts the Forge container in foreground..."
+        docker run --name "${FORGE_CONTAINER_NAME}" --rm \
+            --network="${NETWORK_NAME}" \
+            --env DB_HOST="${MYSQL_CONTAINER_NAME}" \
+            --env DB_NAME="${MYSQL_DATABASE}" \
+            --env DB_USER="${MYSQL_USER}" \
+            --env DB_PASSWORD="${MYSQL_PASSWORD}" \
+            --env MONGO_DB_HOST="${MONGODB_CONTAINER_NAME}" \
+            --env MONGO_DB_NAME="${MONGODB_DBNAME}" \
+            --env MONGO_DB_USER="${MONGODB_USERNAME}" \
+            --env MONGO_DB_PASSWORD="${MONGODB_PASSWORD}" \
+            --env JAVA_VM_ARGS="${FORGE_JAVA_VM_ARGS}" \
+            --env CUBEENGINE_DOCS_SHUTDOWN="true" \
+            --volume="${configDir}:/opt/minecraft/config" \
+            --volume="${FORGE_MODS_DIR}:/opt/minecraft/mods" \
+            cubeengine/forge:latest
 
-        # print docker logs
-        echo "Docker logs:"
-        docker-compose logs
+        echo "Stops background docker containers..."
+        docker stop "${MONGODB_CONTAINER_NAME}" "${MYSQL_CONTAINER_NAME}"
 
-        # clean up environment
-        echo "Clean up environment..."
-        docker-compose rm -fsv
+        echo "Removes the docker network..."
+        docker network rm "${NETWORK_NAME}"
 
-        if [ ! -f "${docsDir}/modules" ]
+        if [ ! -f "${genDocsDir}/README.md" ]
         then
-            echo "The docs couldn't be created."
+            echo "The docs couldn't be created!"
             exit 1
         fi
     popd
 }
 
+push_changes() {
+    mv -v "${genDocsDir}" "${docsDir}"
+
+    pushd "${docsDir}"
+        git add .
+        git status
+        git commit -m "docs were updated automatically"
+        #git push origin master
+    popd
+}
+
 echo "Generate Docs..."
 generate_docs
+
+echo "Push doc changes to git repo..."
+push_changes
