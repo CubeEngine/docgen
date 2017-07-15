@@ -46,6 +46,9 @@ generate_docs() {
             --env MONGODB_PASSWORD="${MONGODB_PASSWORD}" \
             frodenas/mongodb:3.0
 
+        echo "Updates the cubeengine/forge image..."
+        docker pull cubeengine/forge:latest
+
         echo "Creates and starts the Forge container in foreground..."
         docker run --name "${FORGE_CONTAINER_NAME}" --rm \
             --network="${NETWORK_NAME}" \
@@ -78,12 +81,14 @@ generate_docs() {
 }
 
 push_changes() {
-    mv -v "${genDocsDir}" "${docsDir}"
+    rm -vr "${docsDir}/*.md"
+    mv -v "${genDocsDir}/*" "${docsDir}"
 
     pushd "${docsDir}"
         git add .
         git status
         git commit -m "docs were updated automatically"
+        git status
         #git push origin master
     popd
 }
