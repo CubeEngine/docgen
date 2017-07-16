@@ -51,6 +51,7 @@ generate_docs() {
 
         echo "Creates and starts the Forge container in foreground..."
         docker run --name "${FORGE_CONTAINER_NAME}" --rm \
+            --user="$(id -u):$(id -g)" \
             --network="${NETWORK_NAME}" \
             --env DB_HOST="${MYSQL_CONTAINER_NAME}" \
             --env DB_NAME="${MYSQL_DATABASE}" \
