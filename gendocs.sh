@@ -6,6 +6,9 @@ genDocsDir="${configDir}/cubeengine/modules/docs"
 
 docsDir="${scriptDir}/../docs"
 
+GIT_USER_NAME="CubeEngine Bot"
+GIT_USER_EMAIL="management@cubeisland.de"
+
 # docker settings
 NETWORK_NAME="forge_network"
 
@@ -95,7 +98,11 @@ push_changes() {
     pushd "${docsDir}"
         git add .
         git status
-        git commit -m "docs were updated automatically" --author="CubeEngine Bot <management@cubeisland.de>"
+
+        git config user.name "${GIT_USER_NAME}"
+        git config user.email "${GIT_USER_EMAIL}"
+        git commit -m "docs were updated automatically"
+
         git push origin master
     popd
 }
