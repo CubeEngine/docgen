@@ -96,7 +96,7 @@ push_changes() {
         git add .
         git status
         git commit -m "docs were updated automatically"
-        #git push origin master
+        git push origin master
     popd
 }
 
