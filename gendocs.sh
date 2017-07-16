@@ -63,8 +63,8 @@ generate_docs() {
             --env MONGO_DB_PASSWORD="${MONGODB_PASSWORD}" \
             --env JAVA_VM_ARGS="${FORGE_JAVA_VM_ARGS}" \
             --env CUBEENGINE_DOCS_SHUTDOWN="true" \
-            --volume="${configDir}:/opt/minecraft/config" \
-            --volume="${FORGE_MODS_DIR}:/opt/minecraft/mods" \
+            --volume="${configDir}:/home/minecraft/server/config" \
+            --volume="${FORGE_MODS_DIR}:/home/minecraft/server/mods" \
             cubeengine/forge:latest
 
         echo "Stops background docker containers..."
