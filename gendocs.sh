@@ -26,6 +26,9 @@ FORGE_MODS_DIR="${scriptDir}/data/mods"
 
 generate_docs() {
     pushd "${scriptDir}"
+        echo "Creates volume directories (so that they have the correct access rights)..."
+        mkdir -vp ${configDir}
+
         echo "Creates a docker network..."
         docker network create -d bridge "${NETWORK_NAME}"
 
