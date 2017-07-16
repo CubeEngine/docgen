@@ -85,14 +85,17 @@ generate_docs() {
 }
 
 push_changes() {
-    rm -vr "${docsDir}/*.md"
-    mv -v "${genDocsDir}/*" "${docsDir}"
+    echo "Removes all .md files from the docs repo..."
+    rm -v "${docsDir}"/*.md
+    rm -v "${docsDir}"/modules/*.md
+
+    echo "Moves all generated doc files to the docs repo directory..."
+    cp -Rv "${genDocsDir}"/* "${docsDir}"
 
     pushd "${docsDir}"
         git add .
         git status
         git commit -m "docs were updated automatically"
-        git status
         #git push origin master
     popd
 }
