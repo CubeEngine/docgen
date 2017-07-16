@@ -95,7 +95,7 @@ push_changes() {
     pushd "${docsDir}"
         git add .
         git status
-        git commit -m "docs were updated automatically"
+        git commit -m "docs were updated automatically" --author="CubeEngine Bot <management@cubeisland.de>"
         git push origin master
     popd
 }
