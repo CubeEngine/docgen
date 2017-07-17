@@ -55,6 +55,9 @@ generate_docs() {
         echo "Updates the cubeengine/forge image..."
         docker pull cubeengine/forge:latest
 
+        echo "Deletes dangling cubeengine/forge images..."
+        docker rmi $(docker images --filter "reference=cubeengine/forge" --filter "dangling=true" -q)
+
         echo "Creates and starts the Forge container in foreground..."
         docker run --name "${FORGE_CONTAINER_NAME}" --rm \
             --user="$(id -u):$(id -g)" \
