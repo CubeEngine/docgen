@@ -24,7 +24,7 @@ MONGODB_USERNAME="minecraft"
 MONGODB_PASSWORD="<mongo-db-user-pw>"
 
 FORGE_CONTAINER_NAME="docgen_forge"
-FORGE_JAVA_VM_ARGS="-Xmx1G"
+FORGE_JAVA_VM_ARGS="-Xmx768M"
 FORGE_MODS_DIR="${scriptDir}/data/mods"
 
 generate_docs() {
