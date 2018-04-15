@@ -53,7 +53,7 @@ generate_docs() {
             frodenas/mongodb:3.0
 
         echo "Updates the cubeengine/forge image..."
-        docker pull cubeengine/forge:latest
+        docker pull cubeengine/forge:1.12.2
 
         echo "Deletes dangling cubeengine/forge images..."
         docker rmi $(docker images --filter "reference=cubeengine/forge" --filter "dangling=true" -q)
@@ -74,7 +74,7 @@ generate_docs() {
             --env CUBEENGINE_DOCS_SHUTDOWN="true" \
             --volume="${configDir}:/home/minecraft/server/config" \
             --volume="${FORGE_MODS_DIR}:/home/minecraft/server/mods" \
-            cubeengine/forge:latest
+            cubeengine/forge:1.12.2
 
         echo "Stops background docker containers..."
         docker stop "${MONGODB_CONTAINER_NAME}" "${MYSQL_CONTAINER_NAME}"
