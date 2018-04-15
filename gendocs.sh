@@ -26,6 +26,7 @@ MONGODB_PASSWORD="<mongo-db-user-pw>"
 FORGE_CONTAINER_NAME="docgen_forge"
 FORGE_JAVA_VM_ARGS="-Xmx768M"
 FORGE_MODS_DIR="${scriptDir}/data/mods"
+FORGE_WORLD_DIR="${scriptDir}/data/world"
 
 generate_docs() {
     pushd "${scriptDir}"
@@ -74,6 +75,7 @@ generate_docs() {
             --env CUBEENGINE_DOCS_SHUTDOWN="true" \
             --volume="${configDir}:/home/minecraft/server/config" \
             --volume="${FORGE_MODS_DIR}:/home/minecraft/server/mods" \
+            --volume="${FORGE_WORLD_DIR}:/home/minecraft/server/world" \
             cubeengine/forge:1.12.2
 
         echo "Stops background docker containers..."
